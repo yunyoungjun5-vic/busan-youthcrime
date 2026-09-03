@@ -123,6 +123,41 @@ const CoastFlightLandingPage: React.FC = () => {
       .group:hover .group-hover\:bg-\[\#2B7CD4\] { background-color: #F06B4E !important; }
       .group:hover .group-hover\:border-\[\#2B7CD4\] { border-color: #F06B4E !important; }
       .bg-\[radial-gradient\(circle_at_center\,rgba\(26\,93\,171\,0\.08\)_0\%\,transparent_60\%\)\] { background: radial-gradient(circle at center, rgba(232,87,58,0.10) 0%, transparent 60%) !important; }
+
+      /* Metric Cards Mobile Touch & Interactive Hybrid Styling */
+      .metric-card {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1), background-color 0.4s ease, box-shadow 0.4s ease;
+      }
+      .metric-card:active {
+        transform: scale(0.97) !important;
+      }
+      .metric-card.is-active {
+        box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.2) !important;
+        z-index: 25 !important;
+      }
+      .metric-card.metric-theme-accent.is-active {
+        background-color: #E8573A !important;
+      }
+      .metric-card.metric-theme-dark.is-active {
+        background-color: #0f172a !important;
+      }
+      .metric-card.is-active .metric-bg-img {
+        opacity: 0.12 !important;
+      }
+      .metric-card.is-active .metric-title {
+        color: #ffffff !important;
+      }
+      .metric-card.is-active .metric-body {
+        transform: translateY(-1rem) !important;
+      }
+      .metric-card.is-active .metric-num {
+        color: #ffffff !important;
+      }
+      .metric-card.is-active .metric-desc {
+        color: rgba(255, 255, 255, 0.9) !important;
+      }
     `;
     document.head.appendChild(styleEl);
 
@@ -255,40 +290,64 @@ const CoastFlightLandingPage: React.FC = () => {
       }, { threshold: 0.1, rootMargin: "0px 0px -20px 0px" });
       countElements.forEach(el => countObserver.observe(el));
 
-      // System Items Toggle
+      // Metric Cards Mobile Touch & Click Hybrid Interaction (Immediate tap feedback + toggle)
+      const metricCards = document.querySelectorAll('.metric-card');
+      metricCards.forEach(card => {
+        card.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const isAlreadyActive = card.classList.contains('is-active');
+          metricCards.forEach(c => c.classList.remove('is-active'));
+          if (!isAlreadyActive) {
+            card.classList.add('is-active');
+          }
+        });
+      });
+
+      // Dismiss metric card active state when tapping anywhere else
+      document.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        if (!target.closest('.metric-card')) {
+          metricCards.forEach(c => c.classList.remove('is-active'));
+        }
+      });
+
+      // System Items Toggle (Supports both Mouse Hover & Mobile Touch/Click)
       const systemItems = document.querySelectorAll('.system-item');
       const blueprintLayers = document.querySelectorAll('.blueprint-layer');
-      systemItems.forEach(item => {
-        item.addEventListener('mouseenter', () => {
-          const targetId = item.getAttribute('data-target');
-          systemItems.forEach(i => {
-            const indicator = i.querySelector('.indicator');
-            const title = i.querySelector('h4');
-            if (indicator && title) {
-              if (i === item) {
-                indicator.classList.remove('bg-slate-300');
-                indicator.classList.add('bg-[#1A5DAB]');
-                title.classList.remove('text-slate-900');
-                title.classList.add('text-[#1A5DAB]');
-              } else {
-                indicator.classList.add('bg-slate-300');
-                indicator.classList.remove('bg-[#1A5DAB]');
-                title.classList.add('text-slate-900');
-                title.classList.remove('text-[#1A5DAB]');
-              }
-            }
-          });
-
-          blueprintLayers.forEach((layer, index) => {
-            if (index.toString() === targetId) {
-              layer.classList.remove('opacity-0', 'scale-95');
-              layer.classList.add('opacity-100', 'scale-100', 'active');
+      const activateSystemItem = (item: Element) => {
+        const targetId = item.getAttribute('data-target');
+        systemItems.forEach(i => {
+          const indicator = i.querySelector('.indicator');
+          const title = i.querySelector('h4');
+          if (indicator && title) {
+            if (i === item) {
+              indicator.classList.remove('bg-slate-300');
+              indicator.classList.add('bg-[#1A5DAB]');
+              title.classList.remove('text-slate-900');
+              title.classList.add('text-[#1A5DAB]');
             } else {
-              layer.classList.add('opacity-0', 'scale-95');
-              layer.classList.remove('opacity-100', 'scale-100', 'active');
+              indicator.classList.add('bg-slate-300');
+              indicator.classList.remove('bg-[#1A5DAB]');
+              title.classList.add('text-slate-900');
+              title.classList.remove('text-[#1A5DAB]');
             }
-          });
+          }
         });
+
+        blueprintLayers.forEach((layer, index) => {
+          if (index.toString() === targetId) {
+            layer.classList.remove('opacity-0', 'scale-95');
+            layer.classList.add('opacity-100', 'scale-100', 'active');
+          } else {
+            layer.classList.add('opacity-0', 'scale-95');
+            layer.classList.remove('opacity-100', 'scale-100', 'active');
+          }
+        });
+      };
+
+      systemItems.forEach(item => {
+        item.addEventListener('mouseenter', () => activateSystemItem(item));
+        item.addEventListener('click', () => activateSystemItem(item));
       });
 
       // Bento Card Mouse Hover Parallax
@@ -1071,61 +1130,61 @@ const CoastFlightLandingPage: React.FC = () => {
     <!-- Metrics -->
     <section class="border-y border-slate-200 bg-white relative z-20">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-200 w-full">
-        <div class="p-10 lg:p-14 flex flex-col justify-between aspect-square group bg-slate-50 hover:bg-[#1A5DAB] transition-colors duration-500 cursor-default relative overflow-hidden">
-          <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center opacity-0 group-hover:opacity-10 transition-opacity duration-700 mix-blend-multiply grayscale"></div>
-          <span class="group-hover:text-white transition-colors z-10 text-base sm:text-lg font-semibold text-slate-700 tracking-tight relative">
+        <div class="metric-card metric-theme-accent p-10 lg:p-14 flex flex-col justify-between aspect-square group bg-slate-50 hover:bg-[#1A5DAB] transition-all duration-500 cursor-pointer select-none relative overflow-hidden active:scale-[0.97]">
+          <div class="metric-bg-img absolute inset-0 bg-[url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center opacity-0 group-hover:opacity-10 transition-opacity duration-700 mix-blend-multiply grayscale"></div>
+          <span class="metric-title group-hover:text-white transition-colors z-10 text-base sm:text-lg font-semibold text-slate-700 tracking-tight relative">
             누적 상담 건수
           </span>
-          <div class="relative z-10 transform group-hover:-translate-y-4 transition-transform duration-500">
-            <div class="text-[clamp(3.5rem,6vw,5.5rem)] leading-none group-hover:text-white transition-colors font-normal text-slate-900 tracking-tighter font-display mb-2">
+          <div class="metric-body relative z-10 transform group-hover:-translate-y-4 transition-transform duration-500">
+            <div class="metric-num text-[clamp(3.5rem,6vw,5.5rem)] leading-none group-hover:text-white transition-colors font-normal text-slate-900 tracking-tighter font-display mb-2">
               <span class="count-up" data-target="15400" data-suffix="+">15,400+</span>
             </div>
-            <p class="group-hover:text-white/90 transition-colors text-sm font-light text-slate-500">
+            <p class="metric-desc group-hover:text-white/90 transition-colors text-sm font-light text-slate-500">
               부산 및 전국 성범죄 사건 누적 심리상담 수행
             </p>
           </div>
         </div>
 
-        <div class="p-10 lg:p-14 flex flex-col justify-between aspect-square group bg-slate-50 hover:bg-[#1A5DAB] transition-colors duration-500 cursor-default relative overflow-hidden">
-          <div class="bg-center group-hover:opacity-10 transition-opacity duration-700 opacity-0 mix-blend-multiply bg-[url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=800&auto=format&fit=crop')] bg-cover absolute top-0 right-0 bottom-0 left-0 grayscale"></div>
-          <span class="group-hover:text-white transition-colors text-base sm:text-lg font-semibold text-slate-700 tracking-tight z-10 relative">
+        <div class="metric-card metric-theme-accent p-10 lg:p-14 flex flex-col justify-between aspect-square group bg-slate-50 hover:bg-[#1A5DAB] transition-all duration-500 cursor-pointer select-none relative overflow-hidden active:scale-[0.97]">
+          <div class="metric-bg-img bg-center group-hover:opacity-10 transition-opacity duration-700 opacity-0 mix-blend-multiply bg-[url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=800&auto=format&fit=crop')] bg-cover absolute top-0 right-0 bottom-0 left-0 grayscale"></div>
+          <span class="metric-title group-hover:text-white transition-colors text-base sm:text-lg font-semibold text-slate-700 tracking-tight z-10 relative">
             의견서 채택률
           </span>
-          <div class="relative z-10 transform group-hover:-translate-y-4 transition-transform duration-500">
-            <div class="font-display font-normal text-[clamp(3.5rem,6vw,5.5rem)] text-slate-900 leading-none mb-2 group-hover:text-white transition-colors tracking-tighter">
+          <div class="metric-body relative z-10 transform group-hover:-translate-y-4 transition-transform duration-500">
+            <div class="metric-num font-display font-normal text-[clamp(3.5rem,6vw,5.5rem)] text-slate-900 leading-none mb-2 group-hover:text-white transition-colors tracking-tighter">
               <span class="count-up" data-target="99.8" data-suffix="%" data-decimal="1">99.8%</span>
             </div>
-            <p class="group-hover:text-white/90 transition-colors text-sm font-light text-slate-500">
+            <p class="metric-desc group-hover:text-white/90 transition-colors text-sm font-light text-slate-500">
               법원 및 수사기관 양형자료 정상 접수 및 반영
             </p>
           </div>
         </div>
 
-        <div class="p-10 lg:p-14 flex flex-col justify-between aspect-square group bg-slate-50 hover:bg-slate-900 transition-colors duration-500 cursor-default relative overflow-hidden">
-          <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center opacity-0 group-hover:opacity-10 transition-opacity duration-700 mix-blend-multiply grayscale"></div>
-          <span class="group-hover:text-white transition-colors text-base sm:text-lg font-semibold text-slate-700 tracking-tight z-10 relative">
+        <div class="metric-card metric-theme-dark p-10 lg:p-14 flex flex-col justify-between aspect-square group bg-slate-50 hover:bg-slate-900 transition-all duration-500 cursor-pointer select-none relative overflow-hidden active:scale-[0.97]">
+          <div class="metric-bg-img absolute inset-0 bg-[url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center opacity-0 group-hover:opacity-10 transition-opacity duration-700 mix-blend-multiply grayscale"></div>
+          <span class="metric-title group-hover:text-white transition-colors text-base sm:text-lg font-semibold text-slate-700 tracking-tight z-10 relative">
             임상 전문 경력
           </span>
-          <div class="relative z-10 transform group-hover:-translate-y-4 transition-transform duration-500">
-            <div class="font-display font-normal text-[clamp(3.5rem,6vw,5.5rem)] text-slate-900 leading-none mb-2 group-hover:text-white transition-colors tracking-tighter">
+          <div class="metric-body relative z-10 transform group-hover:-translate-y-4 transition-transform duration-500">
+            <div class="metric-num font-display font-normal text-[clamp(3.5rem,6vw,5.5rem)] text-slate-900 leading-none mb-2 group-hover:text-white transition-colors tracking-tighter">
               <span class="count-up" data-target="18" data-suffix="년">18년</span>
             </div>
-            <p class="group-hover:text-white/80 transition-colors text-sm font-light text-slate-500">
+            <p class="metric-desc group-hover:text-white/80 transition-colors text-sm font-light text-slate-500">
               풍부한 법원 심리 감정 및 성범죄 전문 상담 이력
             </p>
           </div>
         </div>
 
-        <div class="p-10 lg:p-14 flex flex-col justify-between aspect-square group bg-slate-50 hover:bg-slate-900 transition-colors duration-500 cursor-default relative overflow-hidden">
-          <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center opacity-0 group-hover:opacity-10 transition-opacity duration-700 mix-blend-multiply grayscale"></div>
-          <span class="group-hover:text-white transition-colors text-base sm:text-lg font-semibold text-slate-700 tracking-tight z-10 relative">
+        <div class="metric-card metric-theme-dark p-10 lg:p-14 flex flex-col justify-between aspect-square group bg-slate-50 hover:bg-slate-900 transition-all duration-500 cursor-pointer select-none relative overflow-hidden active:scale-[0.97]">
+          <div class="metric-bg-img absolute inset-0 bg-[url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center opacity-0 group-hover:opacity-10 transition-opacity duration-700 mix-blend-multiply grayscale"></div>
+          <span class="metric-title group-hover:text-white transition-colors text-base sm:text-lg font-semibold text-slate-700 tracking-tight z-10 relative">
             비밀보장 상담
           </span>
-          <div class="relative z-10 transform group-hover:-translate-y-4 transition-transform duration-500">
-            <div class="font-display font-normal text-[clamp(3.5rem,6vw,5.5rem)] text-slate-900 leading-none mb-2 group-hover:text-white transition-colors tracking-tighter">
+          <div class="metric-body relative z-10 transform group-hover:-translate-y-4 transition-transform duration-500">
+            <div class="metric-num font-display font-normal text-[clamp(3.5rem,6vw,5.5rem)] text-slate-900 leading-none mb-2 group-hover:text-white transition-colors tracking-tighter">
               <span class="count-up" data-target="100" data-suffix="%">100%</span>
             </div>
-            <p class="group-hover:text-white/80 transition-colors text-sm font-light text-slate-500">
+            <p class="metric-desc group-hover:text-white/80 transition-colors text-sm font-light text-slate-500">
               익명 보장 및 철저한 개인정보 암호화 관리
             </p>
           </div>
