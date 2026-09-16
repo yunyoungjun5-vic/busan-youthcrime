@@ -124,18 +124,22 @@ const CoastFlightLandingPage: React.FC = () => {
       .group:hover .group-hover\:border-\[\#2B7CD4\] { border-color: #F06B4E !important; }
       .bg-\[radial-gradient\(circle_at_center\,rgba\(26\,93\,171\,0\.08\)_0\%\,transparent_60\%\)\] { background: radial-gradient(circle at center, rgba(232,87,58,0.10) 0%, transparent 60%) !important; }
 
-      /* Metric Cards Mobile Touch & Interactive Hybrid Styling */
+      /* Metric Cards Mobile Touch & Interactive Styling */
       .metric-card {
         -webkit-tap-highlight-color: transparent;
         touch-action: manipulation;
-        transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1), background-color 0.4s ease, box-shadow 0.4s ease;
+        cursor: pointer;
+        user-select: none;
+        -webkit-user-select: none;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.35s ease, box-shadow 0.35s ease;
       }
       .metric-card:active {
-        transform: scale(0.97) !important;
+        transform: scale(0.96);
       }
       .metric-card.is-active {
-        box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.2) !important;
-        z-index: 25 !important;
+        box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.35) !important;
+        z-index: 30 !important;
+        transform: translateY(-8px) !important;
       }
       .metric-card.metric-theme-accent.is-active {
         background-color: #E8573A !important;
@@ -144,19 +148,23 @@ const CoastFlightLandingPage: React.FC = () => {
         background-color: #0f172a !important;
       }
       .metric-card.is-active .metric-bg-img {
-        opacity: 0.12 !important;
+        opacity: 0.15 !important;
       }
       .metric-card.is-active .metric-title {
         color: #ffffff !important;
       }
-      .metric-card.is-active .metric-body {
-        transform: translateY(-1rem) !important;
+      .metric-card .metric-body {
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
       }
-      .metric-card.is-active .metric-num {
+      .metric-card.is-active .metric-body {
+        transform: translateY(-1.25rem) !important;
+      }
+      .metric-card.is-active .metric-num,
+      .metric-card.is-active .metric-num * {
         color: #ffffff !important;
       }
       .metric-card.is-active .metric-desc {
-        color: rgba(255, 255, 255, 0.9) !important;
+        color: rgba(255, 255, 255, 0.95) !important;
       }
     `;
     document.head.appendChild(styleEl);
@@ -290,26 +298,45 @@ const CoastFlightLandingPage: React.FC = () => {
       }, { threshold: 0.1, rootMargin: "0px 0px -20px 0px" });
       countElements.forEach(el => countObserver.observe(el));
 
-      // Metric Cards Mobile Touch & Click Hybrid Interaction (Immediate tap feedback + toggle)
-      const metricCards = document.querySelectorAll('.metric-card');
-      metricCards.forEach(card => {
-        card.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const isAlreadyActive = card.classList.contains('is-active');
-          metricCards.forEach(c => c.classList.remove('is-active'));
-          if (!isAlreadyActive) {
-            card.classList.add('is-active');
-          }
-        });
-      });
+      // Enable iOS Safari active pseudoclass
+      document.body.addEventListener('touchstart', () => {}, { passive: true });
 
-      // Dismiss metric card active state when tapping anywhere else
-      document.addEventListener('click', (e) => {
-        const target = e.target as HTMLElement;
-        if (!target.closest('.metric-card')) {
-          metricCards.forEach(c => c.classList.remove('is-active'));
+      // Metric Cards Mobile Touch & Click Interaction (Tap feedback + toggle)
+      let lastMetricToggleTime = 0;
+
+      const toggleMetricCard = (targetCard: HTMLElement, evt?: Event) => {
+        if (evt) {
+          evt.stopPropagation();
         }
-      });
+        const now = Date.now();
+        // Prevent race condition between touch and click within 350ms
+        if (now - lastMetricToggleTime < 350) {
+          return;
+        }
+        lastMetricToggleTime = now;
+
+        const isAlreadyActive = targetCard.classList.contains('is-active');
+        const cards = document.querySelectorAll('.metric-card');
+        cards.forEach(c => c.classList.remove('is-active'));
+        if (!isAlreadyActive) {
+          targetCard.classList.add('is-active');
+        }
+      };
+
+      (window as any).__toggleMetricCard = (el: HTMLElement, evt?: Event) => {
+        if (el) toggleMetricCard(el, evt);
+      };
+
+      // Dismiss metric card active state when tapping anywhere outside
+      const dismissActiveMetric = (e: Event) => {
+        const target = e.target as HTMLElement | null;
+        if (!target || typeof target.closest !== 'function') return;
+        if (!target.closest('.metric-card')) {
+          document.querySelectorAll('.metric-card').forEach(c => c.classList.remove('is-active'));
+        }
+      };
+      document.addEventListener('click', dismissActiveMetric);
+      document.addEventListener('touchend', dismissActiveMetric, { passive: true });
 
       // System Items Toggle (Supports both Mouse Hover & Mobile Touch/Click)
       const systemItems = document.querySelectorAll('.system-item');
@@ -1130,7 +1157,7 @@ const CoastFlightLandingPage: React.FC = () => {
     <!-- Metrics -->
     <section class="border-y border-slate-200 bg-white relative z-20">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-200 w-full">
-        <div class="metric-card metric-theme-accent p-10 lg:p-14 flex flex-col justify-between aspect-square group bg-slate-50 hover:bg-[#1A5DAB] transition-all duration-500 cursor-pointer select-none relative overflow-hidden active:scale-[0.97]">
+        <div class="metric-card metric-theme-accent p-10 lg:p-14 flex flex-col justify-between aspect-square group bg-slate-50 hover:bg-[#1A5DAB] transition-all duration-500 cursor-pointer select-none relative overflow-hidden" role="button" tabindex="0" onclick="window.__toggleMetricCard && window.__toggleMetricCard(this, event)">
           <div class="metric-bg-img absolute inset-0 bg-[url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center opacity-0 group-hover:opacity-10 transition-opacity duration-700 mix-blend-multiply grayscale"></div>
           <span class="metric-title group-hover:text-white transition-colors z-10 text-base sm:text-lg font-semibold text-slate-700 tracking-tight relative">
             누적 상담 건수
@@ -1145,7 +1172,7 @@ const CoastFlightLandingPage: React.FC = () => {
           </div>
         </div>
 
-        <div class="metric-card metric-theme-accent p-10 lg:p-14 flex flex-col justify-between aspect-square group bg-slate-50 hover:bg-[#1A5DAB] transition-all duration-500 cursor-pointer select-none relative overflow-hidden active:scale-[0.97]">
+        <div class="metric-card metric-theme-accent p-10 lg:p-14 flex flex-col justify-between aspect-square group bg-slate-50 hover:bg-[#1A5DAB] transition-all duration-500 cursor-pointer select-none relative overflow-hidden" role="button" tabindex="0" onclick="window.__toggleMetricCard && window.__toggleMetricCard(this, event)">
           <div class="metric-bg-img bg-center group-hover:opacity-10 transition-opacity duration-700 opacity-0 mix-blend-multiply bg-[url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=800&auto=format&fit=crop')] bg-cover absolute top-0 right-0 bottom-0 left-0 grayscale"></div>
           <span class="metric-title group-hover:text-white transition-colors text-base sm:text-lg font-semibold text-slate-700 tracking-tight z-10 relative">
             의견서 채택률
@@ -1160,7 +1187,7 @@ const CoastFlightLandingPage: React.FC = () => {
           </div>
         </div>
 
-        <div class="metric-card metric-theme-dark p-10 lg:p-14 flex flex-col justify-between aspect-square group bg-slate-50 hover:bg-slate-900 transition-all duration-500 cursor-pointer select-none relative overflow-hidden active:scale-[0.97]">
+        <div class="metric-card metric-theme-dark p-10 lg:p-14 flex flex-col justify-between aspect-square group bg-slate-50 hover:bg-slate-900 transition-all duration-500 cursor-pointer select-none relative overflow-hidden" role="button" tabindex="0" onclick="window.__toggleMetricCard && window.__toggleMetricCard(this, event)">
           <div class="metric-bg-img absolute inset-0 bg-[url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center opacity-0 group-hover:opacity-10 transition-opacity duration-700 mix-blend-multiply grayscale"></div>
           <span class="metric-title group-hover:text-white transition-colors text-base sm:text-lg font-semibold text-slate-700 tracking-tight z-10 relative">
             임상 전문 경력
@@ -1175,7 +1202,7 @@ const CoastFlightLandingPage: React.FC = () => {
           </div>
         </div>
 
-        <div class="metric-card metric-theme-dark p-10 lg:p-14 flex flex-col justify-between aspect-square group bg-slate-50 hover:bg-slate-900 transition-all duration-500 cursor-pointer select-none relative overflow-hidden active:scale-[0.97]">
+        <div class="metric-card metric-theme-dark p-10 lg:p-14 flex flex-col justify-between aspect-square group bg-slate-50 hover:bg-slate-900 transition-all duration-500 cursor-pointer select-none relative overflow-hidden" role="button" tabindex="0" onclick="window.__toggleMetricCard && window.__toggleMetricCard(this, event)">
           <div class="metric-bg-img absolute inset-0 bg-[url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center opacity-0 group-hover:opacity-10 transition-opacity duration-700 mix-blend-multiply grayscale"></div>
           <span class="metric-title group-hover:text-white transition-colors text-base sm:text-lg font-semibold text-slate-700 tracking-tight z-10 relative">
             비밀보장 상담
@@ -1411,7 +1438,7 @@ const CoastFlightLandingPage: React.FC = () => {
 
       <div class="w-full flex justify-center mt-6 md:mt-8">
         <span class="font-mono text-xs font-light text-slate-400 tracking-widest uppercase text-center px-4">
-          © 2026 부산성범죄심리상담치료센터. ALL RIGHTS RESERVED.
+          © 부산성범죄심리상담치료센터. ALL RIGHTS RESERVED.
         </span>
       </div>
     </footer>
@@ -1446,7 +1473,7 @@ const CoastFlightLandingPage: React.FC = () => {
             {/* Scrollable Popup Content */}
             <div className="overflow-y-auto overscroll-contain flex-1 p-3.5 sm:p-5 md:p-6 space-y-3 sm:space-y-4 bg-white">
               <img
-                src="https://res.cloudinary.com/dxjz9ksjg/image/upload/v1788066880/ChatGPT_Image_2026%EB%85%84_8%EC%9B%94_30%EC%9D%BC_%EC%98%A4%ED%9B%84_02_14_30_wqb114.png"
+                src="https://res.cloudinary.com/dxjz9ksjg/image/upload/v1789546171/ChatGPT_Image_2026%EB%85%84_9%EC%9B%94_16%EC%9D%BC_%EC%98%A4%ED%9B%84_05_08_55_fjzbad.png"
                 alt="통합 양형자료 안내 - 상담·교육·서류 준비 패키지"
                 className="w-full h-auto rounded-xl sm:rounded-2xl object-contain border border-slate-100 shadow-sm block"
                 referrerPolicy="no-referrer"
