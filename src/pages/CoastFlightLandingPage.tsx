@@ -1,23 +1,47 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 
 const CoastFlightLandingPage: React.FC = () => {
+  const navigate = useNavigate();
   const [showPopup, setShowPopup] = useState(false);
+  const [showSecondPopup, setShowSecondPopup] = useState(false);
+
+  const isSecondPopupAllowed = () => {
+    try {
+      const hideUntil = localStorage.getItem('hide_second_popup_until');
+      return !hideUntil || Date.now() > parseInt(hideUntil, 10);
+    } catch {
+      return true;
+    }
+  };
 
   useEffect(() => {
-    // Check localStorage for "do not show today"
+    // Check localStorage for "do not show today" on first & second popups
+    let firstAllowed = true;
     try {
       const hideUntil = localStorage.getItem('hide_main_popup_until');
-      if (!hideUntil || Date.now() > parseInt(hideUntil, 10)) {
-        setShowPopup(true);
-      }
+      firstAllowed = !hideUntil || Date.now() > parseInt(hideUntil, 10);
     } catch {
+      firstAllowed = true;
+    }
+
+    if (firstAllowed) {
       setShowPopup(true);
+    } else if (isSecondPopupAllowed()) {
+      setShowSecondPopup(true);
     }
   }, []);
 
+  const triggerSecondPopupIfAllowed = () => {
+    if (isSecondPopupAllowed()) {
+      setShowSecondPopup(true);
+    }
+  };
+
   const handleClosePopup = () => {
     setShowPopup(false);
+    triggerSecondPopupIfAllowed();
   };
 
   const handleDoNotShowToday = () => {
@@ -30,6 +54,28 @@ const CoastFlightLandingPage: React.FC = () => {
       // fallback
     }
     setShowPopup(false);
+    triggerSecondPopupIfAllowed();
+  };
+
+  const handleCloseSecondPopup = () => {
+    setShowSecondPopup(false);
+  };
+
+  const handleDoNotShowSecondToday = () => {
+    try {
+      const endOfToday = new Date();
+      endOfToday.setHours(23, 59, 59, 999);
+      localStorage.setItem('hide_second_popup_until', endOfToday.getTime().toString());
+    } catch {
+      // fallback
+    }
+    setShowSecondPopup(false);
+  };
+
+  const handleGoToMediaAppearance = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setShowSecondPopup(false);
+    navigate('/media/appearance');
   };
 
   const handleGoToContact = (e: React.MouseEvent) => {
@@ -693,7 +739,7 @@ const CoastFlightLandingPage: React.FC = () => {
           </h1>
 
           <p class="font-sans text-[clamp(1rem,1.4vw,1.35rem)] font-light text-slate-600 max-w-[58ch] leading-[1.7] mb-12 reveal-up text-balance break-keep" style="transition-delay: 1.3s;">
-            18년 이상의 성범죄 전문 심리상담 경험을 바탕으로 아청법 및 미성년자 관련 성범죄 사건의 심리적 원인을 분석하고 재범방지 상담, 성인지교육, 사건 단계별 상담과 양형자료 준비를 지원합니다.
+            25년 이상의 성범죄 전문 심리상담 경험을 바탕으로 아청법 및 미성년자 관련 성범죄 사건의 심리적 원인을 분석하고 재범방지 상담, 성인지교육, 사건 단계별 상담과 양형자료 준비를 지원합니다.
           </p>
 
           <div class="flex flex-col sm:flex-row items-center justify-center gap-6 w-full sm:w-auto reveal-up is-visible" style="transition-delay: 1.4s;">
@@ -740,7 +786,7 @@ const CoastFlightLandingPage: React.FC = () => {
       <div class="flex flex-nowrap w-max animate-[marquee_40s_linear_infinite] opacity-80 hover:opacity-100 transition-opacity duration-700 pl-[250px] md:pl-[350px]" style="animation: marquee 40s linear infinite;">
         <div class="flex items-center gap-12 md:gap-20 pr-12 md:pr-20 min-w-max">
           <span class="font-normal text-base md:text-xl tracking-tight text-slate-600 hover:text-slate-900 transition-all duration-300 cursor-default">
-            18년+ 전문상담
+            25년+ 전문상담
           </span>
           <span class="font-normal text-base md:text-xl tracking-tight text-slate-600 hover:text-slate-900 transition-all duration-300 cursor-default">
             아청법 상담
@@ -766,7 +812,7 @@ const CoastFlightLandingPage: React.FC = () => {
         </div>
         <div class="flex items-center gap-12 md:gap-20 pr-12 md:pr-20 min-w-max" aria-hidden="true">
           <span class="font-normal text-base md:text-xl tracking-tight text-slate-600 hover:text-slate-900 transition-all duration-300 cursor-default">
-            18년+ 전문상담
+            25년+ 전문상담
           </span>
           <span class="font-normal text-base md:text-xl tracking-tight text-slate-600 hover:text-slate-900 transition-all duration-300 cursor-default">
             아청법 상담
@@ -1059,7 +1105,7 @@ const CoastFlightLandingPage: React.FC = () => {
         <div class="mb-12 md:mb-20 reveal-up is-visible">
           <span class="font-mono text-xs font-medium text-[#1A5DAB] tracking-[0.2em] uppercase flex items-center gap-3 mb-6">
             <span class="w-2 h-2 bg-[#1A5DAB]"></span>
-            18년 전문 경력
+            25년 전문 경력
           </span>
           <h2 class="font-display font-normal text-[clamp(2.5rem,5vw,4.5rem)] tracking-tight leading-none mb-6 text-slate-900 break-keep">
             신뢰와 철저한 비밀보장
@@ -1194,7 +1240,7 @@ const CoastFlightLandingPage: React.FC = () => {
           </span>
           <div class="metric-body relative z-10 transform group-hover:-translate-y-4 transition-transform duration-500">
             <div class="metric-num font-display font-normal text-[clamp(3.5rem,6vw,5.5rem)] text-slate-900 leading-none mb-2 group-hover:text-white transition-colors tracking-tighter">
-              <span class="count-up" data-target="18" data-suffix="년">18년</span>
+              <span class="count-up" data-target="25" data-suffix="년">25년</span>
             </div>
             <p class="metric-desc group-hover:text-white/80 transition-colors text-sm font-light text-slate-500">
               풍부한 법원 심리 감정 및 성범죄 전문 상담 이력
@@ -1352,9 +1398,9 @@ const CoastFlightLandingPage: React.FC = () => {
     <footer class="bg-[#f8fafc] border-t border-slate-200 relative pb-8 pt-16 md:pt-20 z-30">
       <div class="max-w-[90rem] mx-auto px-[clamp(1.5rem,5vw,5rem)] flex flex-col lg:flex-row justify-between gap-12 lg:gap-16 border-b border-slate-200 pb-12 lg:pb-16">
         <div class="flex flex-col justify-between max-w-xs">
-          <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/7779c4e9-cf43-4379-a162-96455d9c5618_320w.png" alt="Coast Flight Training Logo" class="md:w-40 w-32 h-auto object-contain mb-8 invert-0">
+          <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/7779c4e9-cf43-4379-a162-96455d9c5618_320w.png" alt="부산 아청법·미성년자 성범죄 심리상담센터" class="md:w-40 w-32 h-auto object-contain mb-8 invert-0">
           <div class="font-mono text-xs font-light text-slate-500 leading-[1.8] tracking-widest break-keep">
-            부산성범죄심리상담치료센터
+            부산 아청법·미성년자 성범죄 심리상담센터
             <br>
             부산광역시 중구 해관로 64, 4층 403-A02호 (중앙동4가, 원빌딩)
             <br>
@@ -1438,7 +1484,7 @@ const CoastFlightLandingPage: React.FC = () => {
 
       <div class="w-full flex justify-center mt-6 md:mt-8">
         <span class="font-mono text-xs font-light text-slate-400 tracking-widest uppercase text-center px-4">
-          © 부산성범죄심리상담치료센터. ALL RIGHTS RESERVED.
+          © 부산 아청법·미성년자 성범죄 심리상담센터. ALL RIGHTS RESERVED.
         </span>
       </div>
     </footer>
@@ -1473,7 +1519,7 @@ const CoastFlightLandingPage: React.FC = () => {
             {/* Scrollable Popup Content */}
             <div className="overflow-y-auto overscroll-contain flex-1 p-3.5 sm:p-5 md:p-6 space-y-3 sm:space-y-4 bg-white">
               <img
-                src="https://res.cloudinary.com/dxjz9ksjg/image/upload/v1789546171/ChatGPT_Image_2026%EB%85%84_9%EC%9B%94_16%EC%9D%BC_%EC%98%A4%ED%9B%84_05_08_55_fjzbad.png"
+                src="https://res.cloudinary.com/dxjz9ksjg/image/upload/v1792028859/29%EB%A7%8C%EC%9B%90_39%EB%A7%8C%EC%9B%90_%EC%B5%9C%EC%A2%85_%ED%95%A0%EC%9D%B8_%ED%8F%AC%EC%8A%A4%ED%84%B0_v91ibb.png"
                 alt="통합 양형자료 안내 - 상담·교육·서류 준비 패키지"
                 className="w-full h-auto rounded-xl sm:rounded-2xl object-contain border border-slate-100 shadow-sm block"
                 referrerPolicy="no-referrer"
@@ -1501,6 +1547,66 @@ const CoastFlightLandingPage: React.FC = () => {
                 <span>|</span>
                 <button
                   onClick={handleClosePopup}
+                  className="text-slate-600 hover:text-slate-900 transition-colors py-1 cursor-pointer font-medium"
+                >
+                  닫기
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Second In-Page Layer Modal Popup (Immune to Browser Popup Blockers, Zero Image Margin) */}
+      {!showPopup && showSecondPopup && (
+        <div
+          className="fixed inset-0 z-[99999] bg-black/65 backdrop-blur-[2px] flex items-center justify-center p-3 sm:p-4 overflow-y-auto transition-opacity animate-fade-in"
+          onClick={handleCloseSecondPopup}
+        >
+          <div
+            className="relative w-full max-w-[420px] sm:max-w-[480px] md:max-w-[560px] lg:max-w-[620px] max-h-[96vh] flex flex-col bg-white rounded-2xl sm:rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.35)] overflow-hidden my-auto transition-transform animate-scale-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Top-Right Floating Close Button */}
+            <button
+              onClick={handleCloseSecondPopup}
+              aria-label="팝업 닫기"
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 z-30 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center transition-all shadow-lg active:scale-95 cursor-pointer backdrop-blur-sm"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Full-Bleed Scrollable Image Area (Zero Outer Margin/Padding) */}
+            <div className="overflow-y-auto overscroll-contain flex-1 p-0 m-0 bg-white">
+              <img
+                src="https://res.cloudinary.com/dxjz9ksjg/image/upload/v1792067983/%EC%A3%BC%EC%9A%94_%EB%B0%A9%EC%86%A1_%EC%96%B8%EB%A1%A0_%EA%B0%95%EC%A1%B0_%EC%83%81%EB%8B%B4%EC%84%BC%ED%84%B0_%ED%8F%AC%EC%8A%A4%ED%84%B0_e6ln84.png"
+                alt="주요 방송·언론 출연 및 강연 기록 안내"
+                className="w-full h-auto block m-0 p-0 border-0 select-none"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+
+            {/* Action Button Directly Below Image */}
+            <button
+              onClick={handleGoToMediaAppearance}
+              className="w-full py-3.5 sm:py-4 px-6 bg-[#18365c] hover:bg-[#10243e] active:bg-[#0c1b30] text-white font-bold text-base sm:text-lg flex items-center justify-center gap-2 transition-colors cursor-pointer tracking-tight shrink-0"
+            >
+              <span>방송 출연 · 강연 기록보기</span>
+              <span className="text-xl leading-none">→</span>
+            </button>
+
+            {/* Bottom Controls Bar */}
+            <div className="flex items-center justify-between px-5 sm:px-6 py-3 bg-slate-50 border-t border-slate-200 text-xs sm:text-sm text-slate-600 font-sans select-none shrink-0">
+              <button
+                onClick={handleDoNotShowSecondToday}
+                className="hover:text-slate-900 transition-colors py-1 cursor-pointer font-medium"
+              >
+                오늘 하루 보지 않기
+              </button>
+              <div className="flex items-center gap-2.5 text-slate-300">
+                <span>|</span>
+                <button
+                  onClick={handleCloseSecondPopup}
                   className="text-slate-600 hover:text-slate-900 transition-colors py-1 cursor-pointer font-medium"
                 >
                   닫기

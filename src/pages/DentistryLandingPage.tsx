@@ -565,7 +565,7 @@ const DentistryLandingPage: React.FC = () => {
                 <div className="bg-emerald-500 p-1.5 rounded-lg text-white">
                   <LogoIcon className="w-5 h-5" />
                 </div>
-                <span className="text-xl font-bold text-slate-900">부산성범죄심리상담센터</span>
+                <span className="text-xl font-bold text-slate-900 break-keep">부산 아청법·미성년자 성범죄 심리상담센터</span>
               </a>
               <p className="text-slate-500 text-sm leading-relaxed font-medium break-keep">
                 성범죄 가해 심리 분석 및 재범 방지 교정 치료 특화 기관입니다. 당신의 변화를 위한 고도의 심리적 개입을 지원합니다.
@@ -620,7 +620,7 @@ const DentistryLandingPage: React.FC = () => {
           </div>
 
           <div className="border-t border-slate-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-400 font-bold">
-            <p>© 부산성범죄심리상담치료센터. All rights reserved.</p>
+            <p>© 부산 아청법·미성년자 성범죄 심리상담센터. All rights reserved.</p>
             <div className="flex gap-6">
               <a href="#" className="hover:text-emerald-600">이용약관</a>
               <a href="#" className="hover:text-emerald-600">개인정보처리방침</a>

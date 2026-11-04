@@ -862,8 +862,8 @@ const Footer = () => (
         <div className="col-span-1 lg:col-span-1">
           {/* 센터 이름 (강조된 제목) */}
           <Link to="/" className="flex items-center gap-2 mb-8 relative z-10">
-            <Scale className="w-7 h-7 text-emerald-400" />
-            <span className="text-xl font-black text-white tracking-tight font-display">부산성범죄심리상담치료센터</span>
+            <Scale className="w-7 h-7 text-emerald-400 shrink-0" />
+            <span className="text-xl font-black text-white tracking-tight font-display break-keep">부산 아청법·미성년자 성범죄 심리상담센터</span>
           </Link>
 
           {/* 소개 문구 (가독성 개선) */}
@@ -940,7 +940,7 @@ const Footer = () => (
           <a href="#" className="hover:text-white">Cookie Policy</a>
         </div>
         <p className="text-slate-400 text-xs font-bold">
-          © 부산성범죄심리상담치료센터. All rights reserved.
+          © 부산 아청법·미성년자 성범죄 심리상담센터. All rights reserved.
         </p>
       </div>
     </div>
@@ -6088,7 +6088,7 @@ const AboutPage = ({ title, slug }: { title: string; slug: string }) => {
                   name: "윤영준 원장", 
                   role: "상담학 박사 / 국제 임상최면치료사", 
                   image: "https://res.cloudinary.com/dxjz9ksjg/image/upload/v1774346422/ChatGPT_Image_2026년_3월_1일_오후_10_34_52_ydee1z.png",
-                  desc: "성범죄 상담 경력 18년 이상, 법원 촉탁 상담위원 역임.",
+                  desc: "성범죄 상담 경력 25년 이상, 법원 촉탁 상담위원 역임.",
                   objectClass: "object-cover"
                 },
                 { 
