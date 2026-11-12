@@ -1402,6 +1402,8 @@ const CoastFlightLandingPage: React.FC = () => {
           <div class="font-mono text-xs font-light text-slate-500 leading-[1.8] tracking-widest break-keep">
             부산 아청법·미성년자 성범죄 심리상담센터
             <br>
+            대표자 : 윤영준
+            <br>
             부산광역시 중구 해관로 64, 4층 403-A02호 (중앙동4가, 원빌딩)
             <br>
             대표상담전화: 0507-1380-0028

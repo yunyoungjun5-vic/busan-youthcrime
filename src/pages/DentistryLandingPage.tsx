@@ -604,6 +604,10 @@ const DentistryLandingPage: React.FC = () => {
               <h4 className="font-bold text-slate-900 mb-6 uppercase tracking-wider text-sm">Contact</h4>
               <ul className="space-y-4 text-sm font-bold text-slate-500">
                 <li className="flex items-start gap-3">
+                  <span className="text-emerald-500 font-bold shrink-0">대표</span>
+                  <span className="leading-relaxed">대표자 : 윤영준</span>
+                </li>
+                <li className="flex items-start gap-3">
                   <MapPin className="text-emerald-500 w-5 h-5 shrink-0 mt-0.5" />
                   <span className="leading-relaxed">부산광역시 중구 해관로 64, 4층 403-A02호 (중앙동4가, 원빌딩)</span>
                 </li>
